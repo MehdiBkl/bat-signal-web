@@ -1,5 +1,5 @@
 // Service worker of the static export: caches the page shell for offline start.
-const CACHE = "bat-signal-static-v2";
+const CACHE = "bat-signal-static-v3";
 const SHELL = ["./", "index.html", "static/style.css", "static/wake_core.js", "static/wake.js",
   "static/icon.svg", "manifest.webmanifest"];
 
