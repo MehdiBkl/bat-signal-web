@@ -1,0 +1,23 @@
+:root { color-scheme: dark light; font-family: system-ui, sans-serif; }
+body { max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+.pill { padding: .15rem .6rem; border-radius: 1rem; background: #888; color: #fff; }
+.pill.online { background: #2a9d4b; }
+.pill.offline { background: #c0392b; }
+ul { list-style: none; padding: 0; }
+li { padding: .5rem 0; border-bottom: 1px solid #8884; }
+li small { display: block; opacity: .7; }
+.wake { text-align: center; margin: 1.5rem 0; }
+#wake-button { font-size: 1.3rem; padding: 1.2rem 2rem; border-radius: 1rem; border: 0; background: #3f3fbf; color: #fff; cursor: pointer; }
+#wake-button:disabled { background: #888; cursor: progress; }
+#wake-status[data-level="good"] { color: #2a9d4b; }
+#wake-status[data-level="warn"] { color: #d98e04; }
+#wake-status[data-level="bad"], .bad { color: #c0392b; }
+button.link { background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; padding: .3rem; }
+dialog { max-width: 28rem; width: 92vw; border-radius: .8rem; }
+dialog label { display: block; margin: .6rem 0; }
+dialog input { display: block; width: 100%; box-sizing: border-box; padding: .4rem; }
+.row { display: flex; gap: .5rem; align-items: center; }
+code { word-break: break-all; }
+#esp-state[data-level="good"] { color: #2a9d4b; }
+#esp-state[data-level="warn"] { color: #d98e04; }
+#esp-state[data-level="bad"] { color: #c0392b; }
