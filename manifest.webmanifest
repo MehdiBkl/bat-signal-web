@@ -1,0 +1,11 @@
+{
+  "name": "Bat-Signal",
+  "short_name": "Bat-Signal",
+  "description": "Réveiller le PC à distance",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#101018",
+  "theme_color": "#3f3fbf",
+  "icons": [{ "src": "static/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
