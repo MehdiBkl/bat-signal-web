@@ -15,6 +15,7 @@
 
   <section class="wake">
     <button id="wake-button" type="button">⚡ Réveiller le PC</button>
+    <button id="sleep-button" type="button" class="secondary">🌙 Mettre en veille</button>
     <p id="wake-status" role="status">…</p>
     <p id="esp-state" role="status"></p>
     <button id="open-settings" type="button" class="link">Réglages</button>
@@ -28,6 +29,7 @@
       <label>Sujet de statut <input id="status-topic" required autocomplete="off" spellcheck="false"></label>
       <label>Token ntfy (facultatif) <input id="ntfy-token" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
       <label>Clé de commande (16+ caractères) <input id="command-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+      <label>Clé de mise en veille (facultatif, sinon la clé de commande) <input id="sleep-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
       <button id="generate-key" type="button" class="link">Générer une clé aléatoire</button>
       <p id="generated" hidden>Copiez cette clé dans <code>COMMAND_KEY</code> (config.h de l'ESP32) avant d'enregistrer, elle ne sera plus affichée :<br><code id="generated-key"></code></p>
       <p id="settings-error" class="bad" role="alert"></p>
