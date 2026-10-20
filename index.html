@@ -2,43 +2,101 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="bat-signal-standalone" content="1">
-  <meta name="theme-color" content="#3f3fbf">
+  <meta name="theme-color" content="#0b0f1a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f5fb" media="(prefers-color-scheme: light)">
+  <meta name="color-scheme" content="dark light">
   <title>Bat-Signal</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="static/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-  <h1>Bat-Signal</h1>
+  <main class="app">
+    <header class="top">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>
+        <h1>Bat-Signal</h1>
+      </div>
+      <button id="open-settings" class="icon-btn" type="button" aria-label="Réglages">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.2 5.2-1.6-.9c.1-.6.1-1.2 0-1.8l1.6-.9a.8.8 0 0 0 .3-1.1l-1.5-2.6a.8.8 0 0 0-1-.3l-1.6.9a7 7 0 0 0-1.5-.9l-.2-1.8a.8.8 0 0 0-.8-.7h-3a.8.8 0 0 0-.8.7l-.2 1.8c-.5.2-1 .5-1.5.9l-1.6-.9a.8.8 0 0 0-1 .3L3.5 9a.8.8 0 0 0 .3 1.1l1.6.9c-.1.6-.1 1.2 0 1.8l-1.6.9a.8.8 0 0 0-.3 1.1l1.5 2.6c.2.4.7.5 1 .3l1.6-.9c.5.4 1 .7 1.5.9l.2 1.8c0 .4.4.7.8.7h3c.4 0 .8-.3.8-.7l.2-1.8c.5-.2 1-.5 1.5-.9l1.6.9c.4.2.8.1 1-.3l1.5-2.6a.8.8 0 0 0-.3-1.1Z"/></svg>
+      </button>
+    </header>
 
-  <section class="wake">
-    <button id="wake-button" type="button">⚡ Réveiller le PC</button>
-    <button id="sleep-button" type="button" class="secondary">🌙 Mettre en veille</button>
-    <p id="wake-status" role="status">…</p>
-    <p id="esp-state" role="status"></p>
-    <button id="open-settings" type="button" class="link">Réglages</button>
-  </section>
+    <section class="card status" aria-label="État du système">
+      <div class="chips">
+        <div id="esp-chip" class="chip" data-level="">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="esp-state">ESP32 : vérification…</span>
+        </div>
+        <button id="refresh" class="icon-btn small" type="button" aria-label="Actualiser l'état">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
+        </button>
+      </div>
+      <p id="esp-hint" class="hint" hidden></p>
+      <p id="last-wake" class="hint"></p>
+    </section>
+
+    <section class="hero" aria-label="Actions">
+      <button id="wake-button" class="power" type="button" aria-label="Réveiller le PC">
+        <span class="ring" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/></svg>
+        <span class="power-label">Réveiller</span>
+      </button>
+
+      <ol id="steps" class="steps" hidden>
+        <li data-step="1" data-state="pending"><span class="mark" aria-hidden="true"></span>Signal envoyé</li>
+        <li data-step="2" data-state="pending"><span class="mark" aria-hidden="true"></span>L'ESP32 a répondu</li>
+        <li data-step="3" data-state="pending"><span class="mark" aria-hidden="true"></span>PC réveillé</li>
+      </ol>
+
+      <p id="wake-status" class="message" role="status" aria-live="polite" data-level="">Prêt.</p>
+
+      <button id="sleep-button" class="ghost" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        Mettre en veille
+      </button>
+    </section>
+
+    <footer class="foot">Chaque ordre est signé dans ce navigateur (HMAC-SHA256) : sans votre clé, personne ne peut réveiller le PC.</footer>
+  </main>
 
   <dialog id="settings">
     <form id="settings-form" method="dialog">
-      <h2>Canal de réveil</h2>
-      <label>Serveur ntfy <input id="ntfy-url" type="url" placeholder="https://ntfy.sh" required autocomplete="off"></label>
-      <label>Sujet des commandes <input id="command-topic" required autocomplete="off" spellcheck="false"></label>
-      <label>Sujet de statut <input id="status-topic" required autocomplete="off" spellcheck="false"></label>
-      <label>Token ntfy (facultatif) <input id="ntfy-token" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
-      <label>Clé de commande (16+ caractères) <input id="command-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
-      <label>Clé de mise en veille (facultatif, sinon la clé de commande) <input id="sleep-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
-      <button id="generate-key" type="button" class="link">Générer une clé aléatoire</button>
-      <p id="generated" hidden>Copiez cette clé dans <code>COMMAND_KEY</code> (config.h de l'ESP32) avant d'enregistrer, elle ne sera plus affichée :<br><code id="generated-key"></code></p>
-      <p id="settings-error" class="bad" role="alert"></p>
-      <div class="row">
-        <button type="submit">Enregistrer</button>
-        <button id="close-settings" type="button" class="link">Fermer</button>
-        <button id="reset-settings" type="button" class="link bad">Effacer</button>
+      <div class="sheet-head">
+        <h2>Réglages</h2>
+        <button id="close-settings" class="icon-btn small" type="button" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7l-1.4-1.4L9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+        </button>
       </div>
-      <small>La clé est stockée dans ce navigateur sous forme non extractable (IndexedDB) ; chaque commande est signée localement.</small>
+
+      <fieldset>
+        <legend>Canal ntfy</legend>
+        <label>Serveur <input id="ntfy-url" type="url" placeholder="https://ntfy.sh" required autocomplete="off"></label>
+        <label>Sujet des commandes <input id="command-topic" required autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+        <label>Sujet de statut <input id="status-topic" required autocomplete="off" spellcheck="false" autocapitalize="off"></label>
+        <label>Token ntfy <small>(facultatif)</small> <input id="ntfy-token" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Clés</legend>
+        <label>Clé de commande <small>(16 caractères minimum)</small> <input id="command-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+        <label>Clé de mise en veille <small>(facultatif, sinon la clé de commande)</small> <input id="sleep-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+        <button id="generate-key" type="button" class="link">Générer une clé aléatoire</button>
+        <div id="generated" class="generated" hidden>
+          <p>À copier dans <code>COMMAND_KEY</code> (config.h de l'ESP32) <strong>avant d'enregistrer</strong> : elle ne sera plus affichée.</p>
+          <code id="generated-key"></code>
+          <button id="copy-key" type="button" class="link">Copier</button>
+        </div>
+        <p class="note">Les clés sont stockées dans ce navigateur sous forme non extractable : la page peut signer avec, personne ne peut les relire.</p>
+      </fieldset>
+
+      <p id="settings-error" class="error" role="alert"></p>
+      <div class="sheet-actions">
+        <button type="submit" class="primary">Enregistrer</button>
+        <button id="reset-settings" type="button" class="danger">Tout effacer</button>
+      </div>
     </form>
   </dialog>
 
