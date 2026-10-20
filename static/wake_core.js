@@ -5,7 +5,7 @@
 
   const MIN_KEY_LENGTH = 16;
   const TOPIC_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
-  const COMMANDS = ["WAKE", "WAKE-BLE", "WAKE-WOL", "PAIR", "UNPAIR"];
+  const COMMANDS = ["WAKE", "WAKE-BLE", "WAKE-WOL", "PAIR", "UNPAIR", "SLEEP"];
 
   function toHex(buffer) {
     return Array.from(new Uint8Array(buffer), (b) => b.toString(16).padStart(2, "0")).join("");
