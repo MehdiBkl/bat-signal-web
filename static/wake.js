@@ -34,9 +34,9 @@
     });
   }
 
-  const loadKey = () => dbRun("readonly", (s) => s.get("command"));
-  const saveKey = (key) => dbRun("readwrite", (s) => s.put(key, "command"));
-  const deleteKey = () => dbRun("readwrite", (s) => s.delete("command"));
+  const loadKey = (name = "command") => dbRun("readonly", (s) => s.get(name));
+  const saveKey = (key, name = "command") => dbRun("readwrite", (s) => s.put(key, name));
+  const deleteKey = (name = "command") => dbRun("readwrite", (s) => s.delete(name));
 
   // ---- ntfy ----------------------------------------------------------------------
   function headers(settings, extra) {
@@ -114,6 +114,44 @@
 
   let busy = false;
 
+  function setBusy(value) {
+    busy = value;
+    $("wake-button").disabled = value;
+    $("sleep-button").disabled = value;
+  }
+
+  // Suspend the PC. The PC-side listener (docs/sleep.md) obeys only a SLEEP signed with this key.
+  async function sleepPc() {
+    if (busy) return;
+    const settings = loadSettings();
+    const key = (await loadKey("sleep").catch(() => undefined)) || (await loadKey().catch(() => undefined));
+    if (!settings.ntfyUrl || !key) {
+      setStatus("Configurez d'abord le canal (Réglages).", "warn");
+      $("settings").showModal();
+      return;
+    }
+    if (!confirm("Mettre le PC en veille maintenant ?")) return;
+    setBusy(true);
+    try {
+      setStatus("Envoi de l'ordre de mise en veille…");
+      const message = await BatCore.signCommand(key, "SLEEP", Math.floor(Date.now() / 1000));
+      await publish(settings, message);
+      if (STANDALONE) {
+        return setStatus("Ordre de mise en veille envoyé : le PC doit s'endormir dans quelques secondes.", "good");
+      }
+      setStatus("Ordre envoyé, attente de la mise en veille…");
+      for (let i = 0; i < 24; i++) {
+        await sleep(2500);
+        if (!(await pcIsUp())) return setStatus("PC en veille.", "good");
+      }
+      setStatus("Ordre envoyé, mais le PC répond encore : mise en veille à distance non activée ? (docs/sleep.md)", "warn");
+    } catch (error) {
+      setStatus(error.message, "bad");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function wake() {
     if (busy) return;
     const settings = loadSettings();
@@ -123,8 +161,7 @@
       $("settings").showModal();
       return;
     }
-    busy = true;
-    $("wake-button").disabled = true;
+    setBusy(true);
     const started = Date.now();
     try {
       setStatus("Envoi du signal…");
@@ -161,8 +198,7 @@
     } catch (error) {
       setStatus(error.message, "bad");
     } finally {
-      busy = false;
-      $("wake-button").disabled = false;
+      setBusy(false);
     }
   }
 
@@ -181,8 +217,11 @@
       const keyText = $("command-key").value.trim();
       if (keyText) await saveKey(await BatCore.importKey(keyText));
       else if (!(await loadKey())) throw new Error("La clé de commande est requise.");
+      const sleepKeyText = $("sleep-key").value.trim();
+      if (sleepKeyText) await saveKey(await BatCore.importKey(sleepKeyText), "sleep");
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       $("command-key").value = "";
+      $("sleep-key").value = "";
       $("ntfy-token").value = "";
       $("generated").hidden = true;
       $("settings").close();
@@ -205,12 +244,14 @@
     if (!confirm("Effacer l'adresse, les sujets, le token et la clé de ce navigateur ?")) return;
     localStorage.removeItem(SETTINGS_KEY);
     await deleteKey().catch(() => undefined);
+    await deleteKey("sleep").catch(() => undefined);
     fillSettings();
     setStatus("Réglages effacés.");
   }
 
   function init() {
     $("wake-button").addEventListener("click", wake);
+    $("sleep-button").addEventListener("click", sleepPc);
     $("open-settings").addEventListener("click", () => { fillSettings(); $("settings").showModal(); });
     $("close-settings").addEventListener("click", () => $("settings").close());
     $("settings-form").addEventListener("submit", saveSettings);
