@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="bat-signal-standalone" content="1">
+  <meta name="theme-color" content="#3f3fbf">
+  <title>Bat-Signal</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="static/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <h1>Bat-Signal</h1>
+
+  <section class="wake">
+    <button id="wake-button" type="button">⚡ Réveiller le PC</button>
+    <p id="wake-status" role="status">…</p>
+    <p id="esp-state" role="status"></p>
+    <button id="open-settings" type="button" class="link">Réglages</button>
+  </section>
+
+  <dialog id="settings">
+    <form id="settings-form" method="dialog">
+      <h2>Canal de réveil</h2>
+      <label>Serveur ntfy <input id="ntfy-url" type="url" placeholder="https://ntfy.sh" required autocomplete="off"></label>
+      <label>Sujet des commandes <input id="command-topic" required autocomplete="off" spellcheck="false"></label>
+      <label>Sujet de statut <input id="status-topic" required autocomplete="off" spellcheck="false"></label>
+      <label>Token ntfy (facultatif) <input id="ntfy-token" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+      <label>Clé de commande (16+ caractères) <input id="command-key" type="password" autocomplete="off" placeholder="laisser vide pour conserver"></label>
+      <button id="generate-key" type="button" class="link">Générer une clé aléatoire</button>
+      <p id="generated" hidden>Copiez cette clé dans <code>COMMAND_KEY</code> (config.h de l'ESP32) avant d'enregistrer, elle ne sera plus affichée :<br><code id="generated-key"></code></p>
+      <p id="settings-error" class="bad" role="alert"></p>
+      <div class="row">
+        <button type="submit">Enregistrer</button>
+        <button id="close-settings" type="button" class="link">Fermer</button>
+        <button id="reset-settings" type="button" class="link bad">Effacer</button>
+      </div>
+      <small>La clé est stockée dans ce navigateur sous forme non extractable (IndexedDB) ; chaque commande est signée localement.</small>
+    </form>
+  </dialog>
+
+  <script src="static/wake_core.js"></script>
+  <script src="static/wake.js"></script>
+</body>
+</html>
